@@ -1,10 +1,10 @@
 <template>
-  <div style="border: 1px solid black; margin: 5px; width: 300px">
+  <div class="note" draggable="true" @dragstart="dragStart" @dragover.prevent @drop="onNoteDropped">
     <template v-if="!isBeingEdited">
       <h3>{{note.id}} - {{note.title}}</h3>
       <p>{{note.body}}</p>
       <div class="">
-        <button @click="togglePin">{{!note.pinned ? 'Pin' : 'Unpin'}}</button>
+        <button @click="togglePin" @dragstart.prevent draggable="true">{{!note.pinned ? 'Pin' : 'Unpin'}}</button>
         <button @click="toggleEdit">Edit</button>
         <button @click="deleteNote">Delete</button>
       </div>
@@ -36,11 +36,27 @@ export default {
       if (sido) {
         this.$store.commit('delete', this.note)
       }
+    },
+    dragStart (event) {
+      console.log('dragStart: ' + this.note.title)
+      event.dataTransfer.setData('note', JSON.stringify(this.note))
+    },
+    onNoteDropped (event) {
+      this.$store.commit('changeOrder', {
+        note: this.note,
+        droppedNote: JSON.parse(event.dataTransfer.getData('note'))
+      })
     }
   },
   components: {NoteFormEdit}
 }
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
+  .note {
+    border: 1px solid black;
+    margin: 5px;
+    width: 300px;
+    cursor: pointer;
+  }
 </style>
