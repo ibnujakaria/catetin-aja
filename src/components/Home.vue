@@ -5,7 +5,16 @@
       <textarea v-model="body" placeholder="New notes..."></textarea>
       <button type="submit">Submit</button>
     </form>
-    <note v-for="note in notes" :note="note"></note>
+    <div style="overflow: hidden">
+      <div style="float: left; width: 400px">
+        <h2>Pinned</h2>
+        <note v-for="note in notes" :note="note" v-if="note.pinned"></note>
+      </div>
+      <div style="float: left; width: 400px">
+        <h2>Notes</h2>
+        <note v-for="note in notes" :note="note" v-if="!note.pinned"></note>
+      </div>
+    </div>
   </div>
 </template>
 

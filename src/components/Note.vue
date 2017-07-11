@@ -1,7 +1,7 @@
 <template>
   <div style="border: 1px solid black; margin: 5px; width: 300px">
     <template v-if="!isBeingEdited">
-      <h2>{{note.id}} - {{note.title}}</h2>
+      <h3>{{note.id}} - {{note.title}}</h3>
       <p>{{note.body}}</p>
     </template>
     <form @submit.prevent="update" v-else>
