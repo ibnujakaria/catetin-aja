@@ -6,7 +6,7 @@ Vue.use(Vuex)
 const state = {
   count: 0,
   notes: [
-    {id: 1, title: 'Apah', body: 'Enjek'}
+    {id: 1, title: 'Apah', body: 'Enjek', pinned: false}
   ]
 }
 
@@ -27,6 +27,7 @@ const mutations = {
   insert (state, note) {
     let lastNote = state.notes[state.notes.length - 1]
     note.id = lastNote ? (lastNote.id + 1) : 1
+    note.pinned = false
     state.notes.push(note)
   },
   update (state, payload) {
@@ -39,6 +40,16 @@ const mutations = {
 
     console.log('newNote')
     console.log([payload.newNote.title, payload.newNote.body])
+  },
+  delete (state, note) {
+    let index = getNoteIndexInNotes(note)
+    state.notes.splice(index, 1)
+  },
+  togglePin (state, note) {
+    let index = getNoteIndexInNotes(note)
+    note.pinned = !note.pinned
+    state.notes.splice(index, 1, note)
+    console.log('toggle pin: ' + note.pinned)
   }
 }
 

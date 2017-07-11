@@ -10,8 +10,9 @@
     </form>
     <div class="">
       <template v-if="!isBeingEdited">
+        <button @click="togglePin">{{!note.pinned ? 'Pin' : 'Unpin'}}</button>
         <button @click="toggleEdit">Edit</button>
-        <button>Delete</button>
+        <button @click="deleteNote">Delete</button>
       </template>
       <template v-else>
         <button @click="toggleEdit">Cancel</button>
@@ -35,6 +36,9 @@ export default {
     toggleEdit () {
       this.isBeingEdited = !this.isBeingEdited
     },
+    togglePin () {
+      this.$store.commit('togglePin', this.note)
+    },
     update () {
       this.$store.commit('update', {
         oldNote: this.note,
@@ -44,6 +48,13 @@ export default {
         }
       })
       this.toggleEdit()
+    },
+    deleteNote () {
+      let sido = confirm('Are you sure you want to delete this?')
+
+      if (sido) {
+        this.$store.commit('delete', this.note)
+      }
     }
   }
 }
