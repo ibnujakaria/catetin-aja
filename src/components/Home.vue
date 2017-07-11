@@ -8,11 +8,11 @@
     <div style="overflow: hidden">
       <div style="float: left; width: 400px">
         <h2>Pinned</h2>
-        <note v-for="note in notes" :note="note" v-if="note.pinned"></note>
+        <note v-for="note in notes" :note="note" :key="note.id" v-if="note.pinned"></note>
       </div>
       <div style="float: left; width: 400px">
         <h2>Notes</h2>
-        <note v-for="note in notes" :note="note" v-if="!note.pinned"></note>
+        <note v-for="note in notes" :note="note" :key="note.id" v-if="!note.pinned"></note>
       </div>
     </div>
   </div>

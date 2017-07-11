@@ -3,33 +3,24 @@
     <template v-if="!isBeingEdited">
       <h3>{{note.id}} - {{note.title}}</h3>
       <p>{{note.body}}</p>
-    </template>
-    <form @submit.prevent="update" v-else>
-      <input type="text" v-model="newTitle" />
-      <textarea v-model="newBody"></textarea>
-    </form>
-    <div class="">
-      <template v-if="!isBeingEdited">
+      <div class="">
         <button @click="togglePin">{{!note.pinned ? 'Pin' : 'Unpin'}}</button>
         <button @click="toggleEdit">Edit</button>
         <button @click="deleteNote">Delete</button>
-      </template>
-      <template v-else>
-        <button @click="toggleEdit">Cancel</button>
-        <button @click="update">Update</button>
-      </template>
-    </div>
+      </div>
+    </template>
+    <note-form-edit v-on:toggle-edit="toggleEdit" :note="note" v-else/>
   </div>
 </template>
 
 <script>
+import NoteFormEdit from './note/partials/NoteFormEdit'
+
 export default {
   props: ['note'],
   data: function () {
     return {
-      isBeingEdited: false,
-      newTitle: this.note.title,
-      newBody: this.note.body
+      isBeingEdited: false
     }
   },
   methods: {
@@ -39,16 +30,6 @@ export default {
     togglePin () {
       this.$store.commit('togglePin', this.note)
     },
-    update () {
-      this.$store.commit('update', {
-        oldNote: this.note,
-        newNote: {
-          title: this.newTitle,
-          body: this.newBody
-        }
-      })
-      this.toggleEdit()
-    },
     deleteNote () {
       let sido = confirm('Are you sure you want to delete this?')
 
@@ -56,7 +37,8 @@ export default {
         this.$store.commit('delete', this.note)
       }
     }
-  }
+  },
+  components: {NoteFormEdit}
 }
 </script>
 
