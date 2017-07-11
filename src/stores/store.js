@@ -35,7 +35,8 @@ const mutations = {
     state.notes.splice(index, 1, {
       id: payload.oldNote.id,
       title: payload.newNote.title,
-      body: payload.newNote.body
+      body: payload.newNote.body,
+      pinned: payload.oldNote.pinned
     })
 
     console.log('newNote')
