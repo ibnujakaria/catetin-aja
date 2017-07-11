@@ -4,10 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const state = {
-  count: 0,
-  notes: [
-    {id: 1, title: 'Apah', body: 'Enjek', pinned: false}
-  ]
+  notes: loadDataFromLocalStorage()
 }
 
 function getNoteIndexInNotes (note) {
@@ -23,12 +20,21 @@ function getNoteIndexInNotes (note) {
   return index
 }
 
+function loadDataFromLocalStorage () {
+  return JSON.parse(localStorage.getItem('catetin-aja.notes')) || []
+}
+
+function saveDataToLocalStorage () {
+  localStorage.setItem('catetin-aja.notes', JSON.stringify(state.notes))
+}
+
 const mutations = {
   insert (state, note) {
     let lastNote = state.notes[state.notes.length - 1]
     note.id = lastNote ? (lastNote.id + 1) : 1
     note.pinned = false
     state.notes.push(note)
+    saveDataToLocalStorage()
   },
   update (state, payload) {
     let index = getNoteIndexInNotes(payload.oldNote)
@@ -38,19 +44,18 @@ const mutations = {
       body: payload.newNote.body,
       pinned: payload.oldNote.pinned
     })
-
-    console.log('newNote')
-    console.log([payload.newNote.title, payload.newNote.body])
+    saveDataToLocalStorage()
   },
   delete (state, note) {
     let index = getNoteIndexInNotes(note)
     state.notes.splice(index, 1)
+    saveDataToLocalStorage()
   },
   togglePin (state, note) {
     let index = getNoteIndexInNotes(note)
     note.pinned = !note.pinned
     state.notes.splice(index, 1, note)
-    console.log('toggle pin: ' + note.pinned)
+    saveDataToLocalStorage()
   }
 }
 
