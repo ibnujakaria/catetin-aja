@@ -4,6 +4,8 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const state = {
+  keyword: null,
+  noteBeingDragged: false,
   notes: loadDataFromLocalStorage()
 }
 
@@ -45,9 +47,10 @@ const mutations = {
     let lastNote = state.notes[state.notes.length - 1]
 
     note.id = lastNote ? (lastNote.id + 1) : 1
+    note.body = note.body ? note.body.replace(new RegExp('\\n', 'g'), '<br>') : null
     note.pinned = false
-    note.order = lastNote ? (lastNote.order + 1) : 1
     state.notes.push(note)
+    note.order = lastNote ? (lastNote.order + 1) : 1
     saveDataToLocalStorage()
   },
   update (state, payload) {
@@ -55,7 +58,7 @@ const mutations = {
     state.notes.splice(index, 1, {
       id: payload.oldNote.id,
       title: payload.newNote.title,
-      body: payload.newNote.body,
+      body: payload.newNote.body ? payload.newNote.body.replace(new RegExp('\\n', 'g'), '<br>') : null,
       pinned: payload.oldNote.pinned
     })
     saveDataToLocalStorage()
@@ -105,6 +108,14 @@ const mutations = {
     }
     orderNotes()
     saveDataToLocalStorage()
+  },
+  showSnackBar (state, payload) {
+    var x = document.getElementById('snackbar')
+    x.className = 'show'
+    x.innerHTML = payload.message
+    setTimeout(function () {
+      x.className = x.className.replace('show', '')
+    }, 3000)
   }
 }
 

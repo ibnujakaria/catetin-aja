@@ -1,47 +1,52 @@
 <template>
   <div class="">
-    <form @submit.prevent="submit">
-      <input type="text" v-model="title" placeholder="Title">
-      <textarea v-model="body" placeholder="New notes..."></textarea>
-      <button type="submit">Submit</button>
-    </form>
-    <div style="overflow: hidden">
-      <div style="float: left; width: 400px">
-        <h2>Pinned</h2>
-        <note v-for="note in notes" :note="note" :key="note.id" v-if="note.pinned"></note>
+    <!-- <input v-model.trim="$store.state.keyword" placeholder="CARI DISINI" style="border: 5px solid green; padding: 30px; font-size: 17pt"> -->
+    <note-create></note-create>
+    <div style="overflow: hidden" class="notes">
+      <div style="overflow:hidden;">
+        <note v-for="note in filteredNotes" :note="note" :key="note.id" v-if="note.pinned"></note>
       </div>
-      <div style="float: left; width: 400px">
-        <h2>Notes</h2>
-        <note v-for="note in notes" :note="note" :key="note.id" v-if="!note.pinned"></note>
+      <div style="overflow:hidden;">
+        <div class="notes">
+          <note v-for="note in filteredNotes" :note="note" :key="note.id" v-if="(!note.pinned)"></note>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import NoteCreate from './NoteCreate'
 import Note from './Note'
-import {mapState} from 'vuex'
 
 export default {
-  data: function () {
-    return {
-      title: null,
-      body: null
-    }
-  },
-  computed: mapState({
-    notes: state => state.notes
-  }),
-  methods: {
-    submit () {
-      this.$store.commit('insert', {
-        title: this.title,
-        body: this.body
+  computed: {
+    notes () {
+      return this.$store.state.notes
+    },
+    filteredNotes () {
+      let keyword = this.$store.state.keyword
+      let regex = new RegExp(keyword, 'i')
+
+      if (!keyword) {
+        return this.notes
+      }
+      let notes = JSON.parse(JSON.stringify(this.$store.state.notes))
+      notes.reverse()
+      return notes.filter(function (item) {
+        return (item.title && item.title.match(regex)) || (item.body && item.body.match(regex))
       })
-      this.title = null
-      this.body = null
+    },
+    noteBeingDragged () {
+      return this.$store.state.noteBeingDragged
     }
   },
-  components: {Note}
+  components: {NoteCreate, Note}
 }
 </script>
+
+<style media="screen">
+.notes {
+  margin: 0 auto;
+}
+</style>
