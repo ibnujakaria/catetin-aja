@@ -1,12 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VueResource from 'vue-resource'
 
 Vue.use(Vuex)
+Vue.use(VueResource)
+
+Vue.http.options.root = 'http://localhost:3333/api/v1'
 
 const state = {
   keyword: null,
   noteBeingDragged: false,
-  notes: loadDataFromLocalStorage()
+  notes: []
 }
 
 function getNoteIndexInNotes (note) {
@@ -20,14 +24,6 @@ function getNoteIndexInNotes (note) {
   }
 
   return index
-}
-
-function loadDataFromLocalStorage () {
-  return JSON.parse(localStorage.getItem('catetin-aja.notes')) || []
-}
-
-function saveDataToLocalStorage () {
-  localStorage.setItem('catetin-aja.notes', JSON.stringify(state.notes))
 }
 
 function orderNotes () {
@@ -49,9 +45,8 @@ const mutations = {
     note.id = lastNote ? (lastNote.id + 1) : 1
     note.body = note.body ? note.body.replace(new RegExp('\\n', 'g'), '<br>') : null
     note.pinned = false
-    state.notes.push(note)
+    state.notes.splice(0, 1, note)
     note.order = lastNote ? (lastNote.order + 1) : 1
-    saveDataToLocalStorage()
   },
   update (state, payload) {
     let index = getNoteIndexInNotes(payload.oldNote)
@@ -61,19 +56,16 @@ const mutations = {
       body: payload.newNote.body ? payload.newNote.body.replace(new RegExp('\\n', 'g'), '<br>') : null,
       pinned: payload.oldNote.pinned
     })
-    saveDataToLocalStorage()
   },
   delete (state, note) {
     let index = getNoteIndexInNotes(note)
     state.notes.splice(index, 1)
     orderNotes()
-    saveDataToLocalStorage()
   },
   togglePin (state, note) {
     let index = getNoteIndexInNotes(note)
     note.pinned = !note.pinned
     state.notes.splice(index, 1, note)
-    saveDataToLocalStorage()
   },
   changeOrder (state, payload) {
     let selisih = Math.abs(payload.note.order - payload.droppedNote.order)
@@ -107,7 +99,6 @@ const mutations = {
       state.notes.splice(droppedNoteIndex, 1, note)
     }
     orderNotes()
-    saveDataToLocalStorage()
   },
   showSnackBar (state, payload) {
     var x = document.getElementById('snackbar')
@@ -116,10 +107,53 @@ const mutations = {
     setTimeout(function () {
       x.className = x.className.replace('show', '')
     }, 3000)
+  },
+  setNotes (state, payload) {
+    state.notes = payload.notes
+  }
+}
+
+const actions = {
+  getNotesFromAPI (context) {
+    Vue.http.get('notes').then((response) => {
+      context.commit('setNotes', response.body)
+    })
+  },
+  togglePin (context, payload) {
+    Vue.http.get('notes/' + payload.id + '/toggle-pin').then((response) => {
+      console.log('success')
+    }, (response) => {
+      context.commit('togglePin', payload)
+    })
+  },
+  update (context, payload) {
+    let data = {
+      title: payload.newNote.title,
+      body: payload.newNote.body
+    }
+    Vue.http.put('notes/' + payload.oldNote.id, data).then((response) => {
+      payload.onSuccess()
+    })
+  },
+  insert (context, payload) {
+    let data = {
+      title: payload.title,
+      body: payload.body
+    }
+    Vue.http.post('notes', data).then((response) => {
+      payload.onSuccess()
+    })
+  },
+  delete (context, payload) {
+    Vue.http.delete('notes/' + payload.note.id).then((response) => {
+      console.log('oke')
+      payload.onSuccess()
+    })
   }
 }
 
 export default new Vuex.Store({
   state,
-  mutations
+  mutations,
+  actions
 })

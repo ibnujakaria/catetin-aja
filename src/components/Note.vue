@@ -1,9 +1,9 @@
 <template>
-  <div class="note" draggable="true" @dragend="dragEnd" @dragstart="dragStart" @dragover.prevent @drop="onNoteDropped" style="float:left;">
-    <div class="note-inner" style="padding: 1px 10px 10px 10px;" v-if="!noteBeingDragged">
+  <div class="note grid-item" draggable="true" @dragend="dragEnd" @dragstart="dragStart" @dragover.prevent @drop="onNoteDropped" style="float:left;">
+    <div class="note-inner" style="padding: 1px 10px 10px 10px;" v-if="noteBeingDragged !== note.id">
       <template v-if="!isBeingEdited">
         <h3>{{note.title}}</h3>
-        <p v-html="note.body"></p>
+        <p v-if="note.body" :class="fontSizeGroup(note)" v-html="note.body"></p>
         <button v-if="note.pinned" @click="togglePin" @dragstart.prevent draggable="true" style="display: inline">
           <i class="fa fa-thumb-tack" :class="{biruh: note.pinned, celeng: !note.pinned}" aria-hidden="true"></i>
         </button>
@@ -20,9 +20,6 @@
         </div>
       </template>
       <note-form-edit v-on:toggle-edit="toggleEdit" :note="note" v-if="isBeingEdited"/>
-    </div>
-    <div class="note-inner" style="padding: 10px" v-else>
-      <h3 v-if="note.id !== noteBeingDragged">Drag here...</h3>
     </div>
   </div>
 </template>
@@ -42,11 +39,15 @@ export default {
       return this.$store.state.noteBeingDragged
     }
   },
+  updated () {
+    window.$('#note-list').isotope('reloadItems').isotope()
+  },
   methods: {
     toggleEdit () {
       this.isBeingEdited = !this.isBeingEdited
     },
     togglePin () {
+      this.$store.dispatch('togglePin', this.note)
       this.$store.commit('togglePin', this.note)
       this.$store.commit('showSnackBar', {
         message: this.note.pinned ? 'Note pinned :)' : 'Note unpinned :)'
@@ -56,9 +57,15 @@ export default {
       let sido = confirm('Are you sure you want to delete this?')
 
       if (sido) {
-        this.$store.commit('delete', this.note)
-        this.$store.commit('showSnackBar', {
-          message: 'Note deleted :('
+        var me = this
+        this.$store.dispatch('delete', {
+          note: this.note,
+          onSuccess () {
+            me.$store.commit('showSnackBar', {
+              message: 'Note deleted :('
+            })
+            me.$store.dispatch('getNotesFromAPI')
+          }
         })
       }
     },
@@ -76,13 +83,22 @@ export default {
         note: this.note,
         droppedNote: JSON.parse(event.dataTransfer.getData('note'))
       })
+    },
+    fontSizeGroup (note) {
+      if (note.body.length < 10) {
+        return 'big'
+      } else if (note.body.length < 30) {
+        return 'medium'
+      }
+
+      return 'small'
     }
   },
   components: {NoteFormEdit}
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="css">
   /*.note {
     border: 1px solid black;
     margin: 5px;

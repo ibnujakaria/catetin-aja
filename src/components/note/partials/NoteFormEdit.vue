@@ -6,7 +6,7 @@
     </div>
     <div class="">
       <button @click.prevent="toggleEdit">
-        <i class="fa fa-remove"></i>
+        <i class="fa fa-arrow-left"></i>
       </button>
       <button @click.prevent="update">
         <i class="fa fa-check" style="color: green"></i>
@@ -26,16 +26,27 @@ export default {
   },
   methods: {
     update () {
-      this.$store.commit('update', {
+      var me = this
+      var onSuccess = function () {
+        me.$store.commit('update', {
+          oldNote: me.note,
+          newNote: {
+            title: me.newTitle,
+            body: me.newBody
+          }
+        })
+        me.toggleEdit()
+        me.$store.commit('showSnackBar', {
+          message: 'Note updated :)'
+        })
+      }
+      this.$store.dispatch('update', {
         oldNote: this.note,
         newNote: {
           title: this.newTitle,
           body: this.newBody
-        }
-      })
-      this.toggleEdit()
-      this.$store.commit('showSnackBar', {
-        message: 'Note updated :)'
+        },
+        onSuccess: onSuccess
       })
     },
     toggleEdit () {
