@@ -23,7 +23,18 @@ function getNoteIndexInNotes (note) {
 }
 
 function loadDataFromLocalStorage () {
-  return JSON.parse(localStorage.getItem('catetin-aja.notes')) || []
+  return JSON.parse(localStorage.getItem('catetin-aja.notes')) || [
+    {
+      id: 1,
+      title: 'Note 1',
+      body: 'Example Note 1'
+    },
+    {
+      id: 1,
+      title: 'Drag this note',
+      body: 'Example Note 2'
+    }
+  ]
 }
 
 function saveDataToLocalStorage () {
