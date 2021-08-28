@@ -7,7 +7,7 @@
         <note v-for="note in filteredNotes" :note="note" :key="note.id" v-if="note.pinned"></note>
       </div>
       <div style="overflow:hidden;">
-        <div class="grid notes" id="note-list">
+        <div class="notes">
           <note v-for="note in filteredNotes" :note="note" :key="note.id" v-if="(!note.pinned)"></note>
         </div>
       </div>
@@ -40,15 +40,6 @@ export default {
     noteBeingDragged () {
       return this.$store.state.noteBeingDragged
     }
-  },
-  mounted () {
-    window.$('#note-list').isotope({
-      // options
-      itemSelector: '.grid-item',
-      layoutMode: 'masonry'
-    })
-
-    this.$store.dispatch('getNotesFromAPI')
   },
   components: {NoteCreate, Note}
 }

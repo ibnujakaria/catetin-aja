@@ -23,7 +23,6 @@ export default {
 <style media="screen">
 html {
   font-family: 'Roboto Slab', serif;
-  color: rgb(70, 70, 70);
 }
 body{
   padding: 0;
@@ -53,21 +52,14 @@ h1 {
   padding: 10px 5px 5px 25px;
   position: fixed;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-  z-index: 9999;
 }
 
-.big {
-  font-size: 24pt;
+#note-create {
+  padding: 10px 10px 10px 10px;
+  width: 500px;
+  margin: auto;
+  background-color: #fff;
 }
-
-.medium {
-  font-size: 13pt;
-}
-
-.small {
-  font-size: 10pt;
-}
-
 button:hover {
   cursor: pointer;
 }
